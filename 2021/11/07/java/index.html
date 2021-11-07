@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+     
+    <meta charset="UTF-8">
+    <title>java - 01小居</title>
+    <link rel="shortcut icon" href="/static/img/icon.png">
+    <link rel="icon" href="/static/img/icon.png" sizes="192x192"/>
+    
+<link rel="stylesheet" href="/static/kico.css">
+<link rel="stylesheet" href="/static/hingle.css">
+
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome/css/font-awesome.min.css">
+
+    <meta name="viewport" content="width=device-width, maximum-scale=1, initial-scale=1"/>
+    <meta property="og:site_name" content="01小居">
+    <meta property="og:title" content="java"/>
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <header>
+    <div class="head-title">
+        <h4>01小居</h4>
+    </div>
+    <div class="head-action">
+        <div class="toggle-btn"></div>
+        <div class="light-btn"></div>
+        <div class="search-btn"></div>
+    </div>
+    <form class="head-search" method="post">
+        <input type="text" name="s" placeholder="搜索什么？">
+    </form>
+    <nav class="head-menu">
+        <a href="/">首页</a>
+        <div class="has-child">
+            <a>分类</a>
+            <div class="sub-menu">
+                
+            </div>
+        </div>
+        
+            <a href="/about">关于我</a>
+        
+            <a href="/friends">朋友们</a>
+        
+    </nav>
+</header>
+
+    <main>
+    <div class="wrap min">
+        <section class="post-title">
+            <h2>java</h2>
+            <div class="post-meta">
+                <time class="date">2021.11.07</time>
+            
+            </div>
+        </section>
+        <article class="post-content">
+        
+            <h1 id="JAVA反序列化"><a href="#JAVA反序列化" class="headerlink" title="JAVA反序列化"></a>JAVA反序列化</h1><p>学习站：<br>1.<a target="_blank" rel="noopener" href="https://www.bookstack.cn/read/anbai-inc-javaweb-sec/java-source-code-audit-IntelliJ%20IDEA.md">https://www.bookstack.cn/read/anbai-inc-javaweb-sec/java-source-code-audit-IntelliJ%20IDEA.md</a><br>2.<a target="_blank" rel="noopener" href="https://javasec.org/">https://javasec.org/</a><br>工具：<a target="_blank" rel="noopener" href="http://www.vuln.cn/6295">http://www.vuln.cn/6295</a><br>基本理解：在原生环境（JDK）或其他环境（包含的外部库）的类中有重写readObject()的类（大部分类为了实现对应功能都重写了），只要在序列化数据可控的情况下，在受害者的环境中总有一条由某个重写的readObject开始的链可以达到我们想要的功能（如触发外部DNS解析，或利用反射获得可执行命令的类和方法RCE）</p>
+<h2 id="一些基本概念"><a href="#一些基本概念" class="headerlink" title="一些基本概念"></a>一些基本概念</h2><h3 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h3><p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/gonjan-blog/p/6685611.html">https://www.cnblogs.com/gonjan-blog/p/6685611.html</a></p>
+<h3 id="JAVA命令执行"><a href="#JAVA命令执行" class="headerlink" title="JAVA命令执行"></a>JAVA命令执行</h3><p>参考：<a target="_blank" rel="noopener" href="http://www.secwk.com/2019/10/14/10652/">http://www.secwk.com/2019/10/14/10652/</a></p>
+<h3 id="JMX"><a href="#JMX" class="headerlink" title="JMX"></a>JMX</h3><p><a target="_blank" rel="noopener" href="https://wiki.qianxin-inc.cn/pages/viewpage.action?pageId=240504110">参考1（内网）</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/162787307">参考2</a><br>JMX从Java1.5开始被引入，就是一套代理和服务，用户可以通过这些代理和服务对自己的所有java应用程序进行管理。方便高效</p>
+<blockquote>
+<p>网上的例子： 例如你开发一个WEB网站，在业务高峰的期间，你想对接口进行限流，就必须去修改接口并发的配置值。</p>
+<p>新手配置写死在程序里，需要改变的时候修改代码，重新编译<br>熟练一点的人会写个配置文件，需要改变的时候只需要修改配置文件，不过还是得重启应用来读取配置<br>老手会写一段代码，把配置值缓存起来，系统在获取的时候，先看看配置文件有没有改动，如有改动则重新从配置里读取，否则从缓存里读取。<br>高手用JMX把需要配置的属性集中在一个类中，然后写一个MBean，再进行相关配置。另外JMX还提供了一个工具页，以方便随时对参数值进行修改。</p>
+<p>大量的运用场景都有JMX的身影，WebLogic的管理页面就是基于JMX开发的，而JBoss则整个系统都基于JMX构架。</p>
+</blockquote>
+<p>架构图<br><img src="https://i.imgur.com/u48oCxS.png"><br><em>每一个MBean都需要实现一个接口，而且这个接口的命名是有讲究的，必须以MBean结尾</em></p>
+<p><strong>MBean：</strong></p>
+<ul>
+<li>通过JMX管理的资源</li>
+<li>基于MVC</li>
+<li>一个Java的class<br>同时，它需要遵循一些规则：</li>
+<li>得实现了一个接口</li>
+<li>默认构造函数，即至少得又一个公用得构造器</li>
+<li>命名规则(接口的命名规范为以具体的实现类为前缀，比如PreffixMBean)</li>
+<li>要想他们能够被远程的客户端控制访问，还需要将其绑定到MBeanServer上</li>
+</ul>
+<p><em>要想MBean能够被远程的客户端控制访问，还需要将其绑定到MBeanServer上</em></p>
+<p><strong>MBeanServer:</strong></p>
+<ul>
+<li><p>顾名思义，MBean的管理服务</p>
+</li>
+<li><p>Mbean会在上面进行注册记录</p>
+</li>
+<li><p>向MBeans转发消息</p>
+</li>
+<li><p>将MBeans事件转发给外部应用<br>外部工具 &lt;=====&gt; MBean server &lt;=====&gt; MBean</p>
+</li>
+<li><p>MBean server需要一个名字，大概格式：domain-name:健值对，比如sealgod.lu0chen:type=sealgod</p>
+</li>
+</ul>
+<p><em>除了MBean与JMX Server在同一主机上，jmx还提供了一种机制，可以将其他主机上的MBean绑定到别的MBean Server上，需要用到另外一个文件mlet。</em></p>
+<p>同一主机的例子：<br><img src="https://i.imgur.com/aHYgS9y.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">BFMBean接口：</span><br><span class="line">import javax.management.DynamicMBean;</span><br><span class="line"></span><br><span class="line">public interface BFMBean &#123;</span><br><span class="line">    String name = &quot;&quot;;</span><br><span class="line">    public void setName(String name);</span><br><span class="line">    //public String getName();</span><br><span class="line">    public void sayHello();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">BF.java实现接口:</span><br><span class="line">import javax.management.DynamicMBean;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public class BF implements BFMBean&#123;</span><br><span class="line">    String name;</span><br><span class="line"></span><br><span class="line">    public BF(String name)&#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">    public BF()&#123;</span><br><span class="line">        this.name = &quot;ka&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void setName(String name)&#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void sayHello()&#123;</span><br><span class="line">        System.out.println(&quot;hi&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">Server:</span><br><span class="line">import javax.management.*;</span><br><span class="line">import javax.management.remote.JMXConnectorServer;</span><br><span class="line">import javax.management.remote.JMXConnectorServerFactory;</span><br><span class="line">import javax.management.remote.JMXServiceURL;</span><br><span class="line">import java.io.IOException;</span><br><span class="line">import java.lang.management.ManagementFactory;</span><br><span class="line">import java.rmi.registry.LocateRegistry;</span><br><span class="line">import java.rmi.registry.Registry;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">public class Server &#123;</span><br><span class="line">    public static void main(String[] args) throws MalformedObjectNameException,NotCompliantMBeanException,InstanceAlreadyExistsException,MBeanRegistrationException,IOException&#123;</span><br><span class="line">        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();</span><br><span class="line">        System.out.println(&quot;Register bean---&quot;);</span><br><span class="line"></span><br><span class="line">        BFMBean boyFriend = new BF();//实例化一个MBean</span><br><span class="line">        ObjectName objectName = new ObjectName(&quot;JMXBoy:name=boyFriend&quot;);</span><br><span class="line">        mBeanServer.registerMBean(boyFriend,objectName);//绑定到MBeanServer,绑定的时候要创建一个objectName类</span><br><span class="line">        Registry registry = LocateRegistry.createRegistry(1099);</span><br><span class="line">        JMXServiceURL jmxServiceURL = new JMXServiceURL(&quot;service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi&quot;);</span><br><span class="line">        JMXConnectorServer jmxConnectorServer = JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, null, mBeanServer);</span><br><span class="line">        jmxConnectorServer.start();</span><br><span class="line">        System.out.println(&quot;JMXConnectorServer is ready...&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>使用自带工具<br><img src="https://i.imgur.com/WWSAbdC.png"><br>在远程连接的地方输入localhost:1099<br><img src="https://i.imgur.com/SD4U2VM.png"><br>可以找到我们注册的JMX</p>
+<h3 id="JNDI"><a href="#JNDI" class="headerlink" title="JNDI"></a>JNDI</h3><p>Java命名和目录接口（JNDI）是一种Java API，类似于一个索引中心，它允许客户端通过name发现和查找数据和对象。<br>用法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String jndiName= ...;//指定需要查找name名称</span><br><span class="line">Context context = new InitialContext();//初始化默认环境</span><br><span class="line">DataSource ds = (DataSourse)context.lookup(jndiName);//查找该name的数据</span><br></pre></td></tr></table></figure>
+        </article>
+        <section class="post-near">
+            <ul>
+                
+                    <li>上一篇: 看完啦 (つд⊂)</li>
+                
+                
+                    <li>下一篇: <a href="/2021/11/06/hello-world/">New Start</a></li>
+                
+            </ul>
+        </section>
+        
+            <section class="post-tags">
+            <a class="-none-link" href="/tags/javasec/" rel="tag">javasec</a>
+            </section>
+        
+    
+        <section class="post-author">
+        
+            <figure class="author-avatar">
+                <img src="https://i.imgur.com/6smnqVt.png" alt="01" />
+            </figure>
+        
+            <div class="author-info">
+                <h4>01</h4>
+                <p>请在这里设置你的作者信息</p>
+            </div>
+        </section>
+    
+    </div>
+</main>
+
+    <footer>
+    <div class="buttons">
+        <a class="to-top" href="#"></a>
+    </div>
+    <div class="wrap min">
+        <section class="widget">
+            <div class="row">
+                <div class="col-m-4">
+                    <h3 class="title-recent">最新文章：</h3>
+                    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/11/07/java/">java</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/11/06/hello-world/">New Start</a></li></ul>
+                </div>
+                <div class="col-m-4">
+                    <h3 class="title-date">时光机：</h3>
+                    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a></li></ul>
+                </div>
+                <div class="col-m-4">
+                    <h3 class="title-tags">标签云：</h3>
+                    <a href="/tags/javasec/" style="font-size: 10px;">javasec</a>
+                </div>
+            </div>
+        </section>
+        <section class="sub-footer">
+            <p>© 2021 <a href="/">01小居</a>. All Rights Reserved. Theme By <a href="https://github.com/Dreamer-Paul/Hingle" target="_blank" rel="nofollow">Hingle</a>.</p>
+        </section>
+    </div>
+</footer>
+
+
+<script src="/static/kico.js"></script>
+<script src="/static/hingle.js"></script>
+
+
+<script>var hingle = new Paul_Hingle({"copyright":true,"night":true});</script>
+
+  </body>
+</html>
